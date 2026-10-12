@@ -24,8 +24,9 @@ module.exports = tseslint.config(
     },
   },
   {
-    files: ['**/*.test.{ts,tsx}', 'src/testing/**', 'src/setupTests.ts'],
-    languageOptions: { globals: globals.jest },
+    files: ['config/**/*.js', '*.js'],
+    languageOptions: { sourceType: 'commonjs', globals: globals.node },
+    rules: { '@typescript-eslint/no-require-imports': 'off' },
   },
   prettier, // siempre el último: desactiva las reglas que chocan con Prettier
 );
