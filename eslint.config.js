@@ -1,0 +1,31 @@
+const js = require('@eslint/js');
+const globals = require('globals');
+const tseslint = require('typescript-eslint');
+const react = require('eslint-plugin-react');
+const reactHooks = require('eslint-plugin-react-hooks');
+const jsxA11y = require('eslint-plugin-jsx-a11y');
+const prettier = require('eslint-config-prettier');
+
+module.exports = tseslint.config(
+  { ignores: ['dist', 'coverage', 'node_modules'] },
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+  react.configs.flat.recommended,
+  react.configs.flat['jsx-runtime'],
+  jsxA11y.flatConfigs.recommended,
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    languageOptions: { globals: globals.browser },
+    settings: { react: { version: 'detect' } },
+    plugins: { 'react-hooks': reactHooks },
+    rules: {
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
+    },
+  },
+  {
+    files: ['**/*.test.{ts,tsx}', 'src/testing/**', 'src/setupTests.ts'],
+    languageOptions: { globals: globals.jest },
+  },
+  prettier, // siempre el último: desactiva las reglas que chocan con Prettier
+);
