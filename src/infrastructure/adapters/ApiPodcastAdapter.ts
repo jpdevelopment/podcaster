@@ -9,21 +9,20 @@ import { PodcastFetchError, PodcastDetailError } from '../../domain/errors/Error
  * Será inyectada como dependencia a través de las clases de casos de uso.
  */
 export class ApiPodcastAdapter implements PodcastRepository {
-  private CORS_PROXY = 'https://api.allorigins.win/get?url=';
-
+  //private CORS_PROXY = 'https://api.allorigins.win/get?url=';
+  private BASE_URL = '/itunes';
   /**
    * Obtiene los 100 primeros podcasts del top formateados con interfaces del dominio.
    * @returns array con los 100 primeros podcasts del top con interfaz Podcast, envuelto en una Promesa.
    */
   async getTopPodcasts(): Promise<Podcast[]> {
     try {
-      const targetUrl = encodeURIComponent(
-        'https://itunes.apple.com/us/rss/toppodcasts/limit=100/genre=1310/json',
-      );
-      const response = await fetch(`${this.CORS_PROXY}${targetUrl}`);
+      const response = await fetch(`${this.BASE_URL}/us/rss/toppodcasts/limit=100/genre=1310/json`);
+
       if (!response.ok) throw new PodcastFetchError();
-      const wrapper = await response.json();
-      return mapApiToPodcasts(JSON.parse(wrapper.contents));
+
+      const rawJson = await response.json();
+      return mapApiToPodcasts(rawJson);
     } catch (error) {
       console.log(error);
       throw new PodcastFetchError();
@@ -37,13 +36,14 @@ export class ApiPodcastAdapter implements PodcastRepository {
    */
   async getPodcastDetail(podcastId: string): Promise<PodcastDetail> {
     try {
-      const targetUrl = encodeURIComponent(
-        `https://itunes.apple.com/lookup?id=${podcastId}&media=podcast&entity=podcastEpisode&limit=20`,
+      const response = await fetch(
+        `${this.BASE_URL}/lookup?id=${podcastId}&media=podcast&entity=podcastEpisode&limit=20`,
       );
-      const response = await fetch(`${this.CORS_PROXY}${targetUrl}`);
+
       if (!response.ok) throw new PodcastDetailError(podcastId);
-      const wrapper = await response.json();
-      return mapApiToPodcastDetail(JSON.parse(wrapper.contents), podcastId);
+
+      const rawJson = await response.json();
+      return mapApiToPodcastDetail(rawJson, podcastId);
     } catch (error) {
       console.log(error);
       throw new PodcastDetailError(podcastId);

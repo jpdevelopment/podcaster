@@ -3,7 +3,6 @@ const globals = require('globals');
 const tseslint = require('typescript-eslint');
 const react = require('eslint-plugin-react');
 const reactHooks = require('eslint-plugin-react-hooks');
-const jsxA11y = require('eslint-plugin-jsx-a11y');
 const prettier = require('eslint-config-prettier');
 
 module.exports = tseslint.config(
@@ -12,7 +11,6 @@ module.exports = tseslint.config(
   ...tseslint.configs.recommended,
   react.configs.flat.recommended,
   react.configs.flat['jsx-runtime'],
-  jsxA11y.flatConfigs.recommended,
   {
     files: ['src/**/*.{ts,tsx}'],
     languageOptions: { globals: globals.browser },

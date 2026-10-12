@@ -1,0 +1,25 @@
+@import '../styles/variables.css';
+.layout main h2 {
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+
+.episode-detail__description {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 24px;
+  line-height: 1.6;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+audio {
+  width: 100%;
+  outline: none;
+  margin-top: 12px;
+}
