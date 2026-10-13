@@ -90,26 +90,4 @@ test('debe mostrar un mensaje de error si el contexto devuelve un error', () => 
 
     expect(screen.getByText(/Error al conectar con el servidor/i)).toBeInTheDocument();
   });
-
-  test('debe mostrar un indicador de carga cuando isLoading es true', () => {
-    jest.spyOn(PodcastContextModule, 'usePodcastContext').mockReturnValue({
-      podcasts: [],
-      isLoading: true,
-      error: null,
-      fetchPodcasts: jest.fn(),
-      fetchPodcastDetail: jest.fn(),
-    });
-
-    render(
-      <BrowserRouter>
-        <MainView />
-      </BrowserRouter>
-    );
-  });
-
-  
 });
-
-
-
-

@@ -7,13 +7,13 @@ import './Header.css';
  * Componente común para todas las vistas de la Cabecera de la App.
  */
 export const Header: React.FC = () => {
-  const {isLoading} = usePodcastContext();
+  const { isLoading } = usePodcastContext();
   return (
     <header className="header">
       <Link to="/" className="header__title">
         Podcaster
       </Link>
-      {isLoading && <div className="header__spinner" />}
+      {isLoading && <div className="header__spinner" role="status" aria-label="Cargando" />}{' '}
     </header>
   );
 };
