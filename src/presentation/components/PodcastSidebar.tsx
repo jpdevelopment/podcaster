@@ -15,7 +15,9 @@ export const PodcastSidebar: React.FC<{ podcast: Podcast }> = ({ podcast }) => (
     <Link to={`/podcast/${podcast.id}`} className="sidebar__title">
       {podcast.title}
     </Link>
-    <p>by {podcast.author}</p>
+    <p className="sidebar__author">
+      by <Link to={`/podcast/${podcast.id}`}>{podcast.author}</Link>
+    </p>
     {podcast.summary && (
       <div className="sidebar__desc">
         <strong>Description:</strong>
