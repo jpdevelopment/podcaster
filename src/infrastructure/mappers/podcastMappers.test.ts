@@ -10,11 +10,7 @@ describe('podcastMappers', () => {
             id: { attributes: { 'im:id': '123' } },
             'im:name': { label: 'Test Podcast' },
             'im:artist': { label: 'Test Author' },
-            'im:image': [
-              { label: 'small.jpg' },
-              { label: 'mid.jpg' },
-              { label: 'large.jpg' }
-            ],
+            'im:image': [{ label: 'small.jpg' }, { label: 'mid.jpg' }, { label: 'large.jpg' }],
             summary: { label: 'Test Summary' },
           },
         ],
@@ -22,7 +18,7 @@ describe('podcastMappers', () => {
     };
 
     const result = mapApiToPodcasts(rawMock);
-    
+
     expect(result).toHaveLength(1);
     expect(result[0]).toEqual({
       id: '123',

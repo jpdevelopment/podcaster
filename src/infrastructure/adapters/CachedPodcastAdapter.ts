@@ -47,7 +47,6 @@ export class CachedPodcastAdapter implements PodcastRepository {
     return data;
   }
 
-
   // Métodos para la gestión de caché local
 
   /**

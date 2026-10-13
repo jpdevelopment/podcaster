@@ -29,7 +29,7 @@ describe('PodcastDetailView Component', () => {
             duration: '1800',
           },
         ],
-        episodeCount: 42
+        episodeCount: 42,
       }),
     });
 
@@ -39,7 +39,7 @@ describe('PodcastDetailView Component', () => {
         <Routes>
           <Route path="/podcast/:podcastId" element={<PodcastDetailView />} />
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     // 3. Verificamos que los datos del detalle y los episodios aparecen en pantalla

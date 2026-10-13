@@ -1,12 +1,12 @@
 import { Podcast } from '../../domain/Podcast';
 import { Episode, PodcastDetail } from '../../domain/Episode';
 import { ITunesTopPodcastsResponseDTO, ITunesEntryDTO } from '../dtos/iTunesPodcastDTO';
-import { ITunesEpisodesDTO, ITunesEpisodesResponseDTO} from '../dtos/iTunesEpisodeDTO';
+import { ITunesEpisodesDTO, ITunesEpisodesResponseDTO } from '../dtos/iTunesEpisodeDTO';
 
 // Funciones para el mapeo de DTOs de la API a interfaces del dominio
 
 /**
- * Función que devuelve el array de Podcasts con interfaz del dominio a partir del DTO del JSON de la petición del top 100 
+ * Función que devuelve el array de Podcasts con interfaz del dominio a partir del DTO del JSON de la petición del top 100
  * @param rawJson Json en bruto de la petición
  * @returns array de Podcast
  */
@@ -27,10 +27,13 @@ export function mapApiToPodcasts(rawJson: ITunesTopPodcastsResponseDTO): Podcast
  * @param podcastId string con el id del podcast
  * @returns detalle del podcast formateado en objeto de dominio
  */
-export function mapApiToPodcastDetail(rawJson: ITunesEpisodesResponseDTO, podcastId: string): PodcastDetail {
+export function mapApiToPodcastDetail(
+  rawJson: ITunesEpisodesResponseDTO,
+  podcastId: string,
+): PodcastDetail {
   const results: ITunesEpisodesDTO[] = rawJson?.results || [];
-  const podcastInfo = results.find(r => r.wrapperType === 'track');
-  const rawEpisodes = results.filter(r => r.wrapperType === 'podcastEpisode');
+  const podcastInfo = results.find((r) => r.wrapperType === 'track');
+  const rawEpisodes = results.filter((r) => r.wrapperType === 'podcastEpisode');
 
   const podcast: Podcast = {
     id: podcastId,
@@ -47,9 +50,10 @@ export function mapApiToPodcastDetail(rawJson: ITunesEpisodesResponseDTO, podcas
     const seconds = totalSeconds % 60;
     const hours = Math.floor(minutes / 60);
 
-    const formattedDuration = hours > 0
-      ? `${hours}:${String(minutes % 60).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
-      : `${minutes}:${String(seconds).padStart(2, '0')}`;
+    const formattedDuration =
+      hours > 0
+        ? `${hours}:${String(minutes % 60).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+        : `${minutes}:${String(seconds).padStart(2, '0')}`;
 
     const date = ep.releaseDate ? new Date(ep.releaseDate) : new Date();
     const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
@@ -64,5 +68,5 @@ export function mapApiToPodcastDetail(rawJson: ITunesEpisodesResponseDTO, podcas
     };
   });
 
-  return { podcast, episodes, episodeCount: podcastInfo?.trackCount ?? episodes.length  };
+  return { podcast, episodes, episodeCount: podcastInfo?.trackCount ?? episodes.length };
 }

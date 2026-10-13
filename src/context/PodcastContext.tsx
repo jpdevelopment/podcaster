@@ -30,7 +30,8 @@ export const PodcastProvider: React.FC<{ children: ReactNode }> = ({ children })
       const data = await getTopPodcasts.execute(filter);
       setPodcasts(data);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Error desconocido al obtener los podcasts';
+      const message =
+        err instanceof Error ? err.message : 'Error desconocido al obtener los podcasts';
       setError(message);
     } finally {
       setIsLoading(false);
@@ -45,7 +46,8 @@ export const PodcastProvider: React.FC<{ children: ReactNode }> = ({ children })
     try {
       return await getPodcastDetail.execute(id);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Error desconocido al obtener el detalle del podcast';
+      const message =
+        err instanceof Error ? err.message : 'Error desconocido al obtener el detalle del podcast';
       setError(message);
       return null;
     } finally {

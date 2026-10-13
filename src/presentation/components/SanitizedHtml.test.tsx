@@ -14,7 +14,9 @@ describe('SanitizedHtml', () => {
   test('elimina scripts y manejadores de eventos peligrosos', () => {
     const { container } = render(
       <SanitizedHtml
-        html={'<p>Texto</p><script>window.hacked = true</script><img src="x" onerror="window.hacked = true">'}
+        html={
+          '<p>Texto</p><script>window.hacked = true</script><img src="x" onerror="window.hacked = true">'
+        }
       />,
     );
 

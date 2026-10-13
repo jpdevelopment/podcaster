@@ -1,4 +1,4 @@
-import { Podcast } from "./Podcast";
+import { Podcast } from './Podcast';
 
 export interface Episode {
   id: string;
@@ -13,5 +13,4 @@ export interface PodcastDetail {
   podcast: Podcast;
   episodes: Episode[];
   episodeCount: number;
-
 }

@@ -16,7 +16,7 @@ export class GetTopPodcasts {
 
     const term = filterTerm.toLowerCase().trim();
     return podcasts.filter(
-      p => p.title.toLowerCase().includes(term) || p.author.toLowerCase().includes(term)
+      (p) => p.title.toLowerCase().includes(term) || p.author.toLowerCase().includes(term),
     );
   }
 }

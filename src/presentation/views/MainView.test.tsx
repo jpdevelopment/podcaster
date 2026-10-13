@@ -31,7 +31,7 @@ describe('MainView Component', () => {
         <BrowserRouter>
           <MainView />
         </BrowserRouter>
-      </PodcastProvider>
+      </PodcastProvider>,
     );
 
     await waitFor(() => {
@@ -45,11 +45,23 @@ describe('MainView Component', () => {
   test('debe llamar a fetchPodcasts con el filtro introducido por el usuario', async () => {
     const user = userEvent.setup();
     const mockFetchPodcasts = jest.fn();
-    
+
     jest.spyOn(PodcastContextModule, 'usePodcastContext').mockReturnValue({
       podcasts: [
-        { id: '1', title: 'Song Exploder', author: 'Hrishikesh', image: 'img1.jpg', summary: 'desc' },
-        { id: '2', title: 'The Daily', author: 'New York Times', image: 'img2.jpg', summary: 'desc' },
+        {
+          id: '1',
+          title: 'Song Exploder',
+          author: 'Hrishikesh',
+          image: 'img1.jpg',
+          summary: 'desc',
+        },
+        {
+          id: '2',
+          title: 'The Daily',
+          author: 'New York Times',
+          image: 'img2.jpg',
+          summary: 'desc',
+        },
       ],
       isLoading: false,
       error: null,
@@ -60,7 +72,7 @@ describe('MainView Component', () => {
     render(
       <BrowserRouter>
         <MainView />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     const input = screen.getByPlaceholderText(/filter podcasts/i);
@@ -73,7 +85,7 @@ describe('MainView Component', () => {
   });
 
   // Tests de estados de carga y error:
-test('debe mostrar un mensaje de error si el contexto devuelve un error', () => {
+  test('debe mostrar un mensaje de error si el contexto devuelve un error', () => {
     jest.spyOn(PodcastContextModule, 'usePodcastContext').mockReturnValue({
       podcasts: [],
       isLoading: false,
@@ -85,7 +97,7 @@ test('debe mostrar un mensaje de error si el contexto devuelve un error', () => 
     render(
       <BrowserRouter>
         <MainView />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     expect(screen.getByText(/Error al conectar con el servidor/i)).toBeInTheDocument();

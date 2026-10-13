@@ -5,9 +5,15 @@ import { PodcastDetail } from '../../domain/Episode';
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 
 const buildDetail = (podcastId: string): PodcastDetail => ({
-  podcast: { id: podcastId, title: `Podcast ${podcastId}`, author: 'Autor', image: '', summary: '' },
+  podcast: {
+    id: podcastId,
+    title: `Podcast ${podcastId}`,
+    author: 'Autor',
+    image: '',
+    summary: '',
+  },
   episodes: [],
-  episodeCount: 0
+  episodeCount: 0,
 });
 
 describe('CachedPodcastAdapter', () => {
@@ -85,7 +91,7 @@ describe('CachedPodcastAdapter', () => {
 
       expect(data).toHaveLength(1);
       expect(console.warn).toHaveBeenCalled();
-    });   
+    });
   });
 
   describe('getPodcastDetail', () => {
