@@ -6,36 +6,23 @@ import { ITunesTopPodcastsResponseDTO } from '../dtos/iTunesPodcastDTO';
 import { ITunesEpisodesResponseDTO } from '../dtos/iTunesEpisodeDTO';
 import { PodcastFetchError, PodcastDetailError } from '../../domain/errors/Errors';
 
-// Sobre con el que allorigins (/get) devuelve la respuesta del servicio de destino.
-interface AllOriginsResponse {
-  contents?: unknown;
-}
-
 /**
  * Clase Adaptador que implementa la interfaz del puerto del podcast y sus métododos.
  * Será inyectada como dependencia a través de las clases de casos de uso.
+ * Consulta directamente la API de iTunes: sus endpoints envían cabeceras CORS, por lo que no hace falta proxy.
  */
 export class ApiPodcastAdapter implements PodcastRepository {
-  private readonly CORS_PROXY = 'https://api.allorigins.win/get?url=';
+  private readonly BASE_URL = 'https://itunes.apple.com';
 
   /**
-   * Helper privado para realizar el fetch a través del proxy CORS y extraer el JSON interno
-   * @param itunesPath ruta de iTunes (con query string) a consultar
-   * @returns el JSON de iTunes tipado como T, o null si la respuesta no es válida
+   * Helper privado para realizar la petición y devolver el JSON tipado.
+   * @param path ruta de iTunes (con query string) a consultar
+   * @throws Error con el código HTTP si la respuesta no es correcta
    */
-  private async fetchJson<T>(itunesPath: string): Promise<T | null> {
-    const targetUrl = `https://itunes.apple.com${itunesPath}`;
-    const url = `${this.CORS_PROXY}${encodeURIComponent(targetUrl)}`;
-
-    const response = await fetch(url);
-    if (!response.ok) return null;
-
-    const data: AllOriginsResponse = await response.json();
-    if (!data?.contents) return null;
-
-    // AllOrigins devuelve el contenido como string o como objeto JSON parseado
-    const parsed = typeof data.contents === 'string' ? JSON.parse(data.contents) : data.contents;
-    return parsed as T;
+  private async fetchJson<T>(path: string): Promise<T> {
+    const response = await fetch(`${this.BASE_URL}${path}`);
+    if (!response.ok) throw new Error(`Respuesta HTTP ${response.status} al consultar ${path}`);
+    return (await response.json()) as T;
   }
 
   /**
@@ -47,9 +34,6 @@ export class ApiPodcastAdapter implements PodcastRepository {
       const rawJson = await this.fetchJson<ITunesTopPodcastsResponseDTO>(
         '/us/rss/toppodcasts/limit=100/genre=1310/json',
       );
-
-      if (!rawJson) throw new PodcastFetchError();
-
       return mapApiToPodcasts(rawJson);
     } catch (error) {
       console.error(error);
@@ -65,11 +49,8 @@ export class ApiPodcastAdapter implements PodcastRepository {
   async getPodcastDetail(podcastId: string): Promise<PodcastDetail> {
     try {
       const rawJson = await this.fetchJson<ITunesEpisodesResponseDTO>(
-        `/lookup?id=${podcastId}&media=podcast&entity=podcastEpisode&limit=20`,
+        `/lookup?id=${encodeURIComponent(podcastId)}&media=podcast&entity=podcastEpisode&limit=20`,
       );
-
-      if (!rawJson) throw new PodcastDetailError(podcastId);
-
       return mapApiToPodcastDetail(rawJson, podcastId);
     } catch (error) {
       console.error(error);

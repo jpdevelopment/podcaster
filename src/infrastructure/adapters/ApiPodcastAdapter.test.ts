@@ -1,17 +1,16 @@
 import { ApiPodcastAdapter } from './ApiPodcastAdapter';
 import { PodcastFetchError, PodcastDetailError } from '../../domain/errors/Errors';
 
-// allorigins (/get) envuelve la respuesta real de iTunes como texto dentro de `contents`.
-const wrapInAllOrigins = (payload: unknown) => ({
+const jsonResponse = (payload: unknown) => ({
   ok: true,
-  json: async () => ({ contents: JSON.stringify(payload) }),
+  json: async () => payload,
 });
 
 describe('ApiPodcastAdapter (Infrastructure Adapter)', () => {
   const originalFetch = global.fetch;
 
   beforeEach(() => {
-    // Silenciamos console.log durante los tests de errores para mantener la terminal limpia
+    // Silenciamos console.error durante los tests de errores para mantener la terminal limpia
     jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
@@ -21,9 +20,9 @@ describe('ApiPodcastAdapter (Infrastructure Adapter)', () => {
   });
 
   describe('getTopPodcasts', () => {
-    test('devuelve los podcasts mapeados cuando el proxy responde con contents', async () => {
+    test('devuelve los podcasts mapeados llamando directamente a iTunes', async () => {
       global.fetch = jest.fn().mockResolvedValue(
-        wrapInAllOrigins({
+        jsonResponse({
           feed: {
             entry: [
               {
@@ -44,20 +43,23 @@ describe('ApiPodcastAdapter (Infrastructure Adapter)', () => {
       expect(result[0]?.title).toBe('Test Podcast');
       expect(global.fetch).toHaveBeenCalledTimes(1);
       expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining(
-          encodeURIComponent('https://itunes.apple.com/us/rss/toppodcasts/limit=100/genre=1310/json'),
-        ),
+        'https://itunes.apple.com/us/rss/toppodcasts/limit=100/genre=1310/json',
       );
     });
 
     test('lanza PodcastFetchError si la respuesta HTTP no es ok', async () => {
-      global.fetch = jest.fn().mockResolvedValue({ ok: false });
+      global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 500 });
 
       await expect(new ApiPodcastAdapter().getTopPodcasts()).rejects.toThrow(PodcastFetchError);
     });
 
-    test('lanza PodcastFetchError si el proxy no devuelve contents', async () => {
-      global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({}) });
+    test('lanza PodcastFetchError si la respuesta no es un JSON válido', async () => {
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: true,
+        json: async () => {
+          throw new SyntaxError('JSON inválido');
+        },
+      });
 
       await expect(new ApiPodcastAdapter().getTopPodcasts()).rejects.toThrow(PodcastFetchError);
     });
@@ -72,7 +74,7 @@ describe('ApiPodcastAdapter (Infrastructure Adapter)', () => {
   describe('getPodcastDetail', () => {
     test('devuelve el podcast y sus episodios mapeados', async () => {
       global.fetch = jest.fn().mockResolvedValue(
-        wrapInAllOrigins({
+        jsonResponse({
           results: [
             {
               wrapperType: 'track',
@@ -99,24 +101,20 @@ describe('ApiPodcastAdapter (Infrastructure Adapter)', () => {
       expect(result.episodes).toHaveLength(1);
       expect(result.episodes[0]?.duration).toBe('14:00');
       expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining(
-          encodeURIComponent(
-            'https://itunes.apple.com/lookup?id=123&media=podcast&entity=podcastEpisode&limit=20',
-          ),
-        ),
+        'https://itunes.apple.com/lookup?id=123&media=podcast&entity=podcastEpisode&limit=20',
       );
     });
 
     test('lanza PodcastDetailError si la respuesta HTTP no es ok', async () => {
-      global.fetch = jest.fn().mockResolvedValue({ ok: false });
+      global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 404 });
 
       await expect(new ApiPodcastAdapter().getPodcastDetail('123')).rejects.toThrow(
         PodcastDetailError,
       );
     });
 
-    test('lanza PodcastDetailError si el proxy no devuelve contents', async () => {
-      global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({}) });
+    test('lanza PodcastDetailError si ocurre un fallo de red', async () => {
+      global.fetch = jest.fn().mockRejectedValue(new Error('Network error'));
 
       await expect(new ApiPodcastAdapter().getPodcastDetail('123')).rejects.toThrow(
         PodcastDetailError,
