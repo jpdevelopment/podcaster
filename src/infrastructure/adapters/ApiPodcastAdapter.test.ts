@@ -1,67 +1,126 @@
 import { ApiPodcastAdapter } from './ApiPodcastAdapter';
 import { PodcastFetchError, PodcastDetailError } from '../../domain/errors/Errors';
 
+// allorigins (/get) envuelve la respuesta real de iTunes como texto dentro de `contents`.
+const wrapInAllOrigins = (payload: unknown) => ({
+  ok: true,
+  json: async () => ({ contents: JSON.stringify(payload) }),
+});
+
 describe('ApiPodcastAdapter (Infrastructure Adapter)', () => {
   const originalFetch = global.fetch;
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    // Silenciamos el console.log intencionalmente durante los tests de errores para mantener la terminal limpia
-    jest.spyOn(console, 'log').mockImplementation(() => {});
+    // Silenciamos console.log durante los tests de errores para mantener la terminal limpia
+    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
     global.fetch = originalFetch;
-    // Restaura el console.log original después de cada test
-    jest.restoreAllMocks(); 
+    jest.restoreAllMocks();
   });
 
   describe('getTopPodcasts', () => {
-    test('debe retornar la lista de podcasts cuando la respuesta es exitosa', async () => {
-      const mockResponseData = {
-        feed: { entry: [] },
-      };
+    test('devuelve los podcasts mapeados cuando el proxy responde con contents', async () => {
+      global.fetch = jest.fn().mockResolvedValue(
+        wrapInAllOrigins({
+          feed: {
+            entry: [
+              {
+                id: { attributes: { 'im:id': '123' } },
+                'im:name': { label: 'Test Podcast' },
+                'im:artist': { label: 'Test Author' },
+                'im:image': [{ label: 'small.jpg' }, { label: 'mid.jpg' }, { label: 'large.jpg' }],
+                summary: { label: 'Test Summary' },
+              },
+            ],
+          },
+        }),
+      );
 
-      global.fetch = jest.fn().mockResolvedValue({
-        ok: true,
-        json: async () => mockResponseData,
-      });
+      const result = await new ApiPodcastAdapter().getTopPodcasts();
 
-      const adapter = new ApiPodcastAdapter();
-      const result = await adapter.getTopPodcasts();
-
+      expect(result).toHaveLength(1);
+      expect(result[0]?.title).toBe('Test Podcast');
       expect(global.fetch).toHaveBeenCalledTimes(1);
-      expect(result).toEqual([]); // O la lista mapeada que devuelva tu mapper
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining(
+          encodeURIComponent('https://itunes.apple.com/us/rss/toppodcasts/limit=100/genre=1310/json'),
+        ),
+      );
     });
 
-    test('debe lanzar PodcastFetchError si la respuesta de la API no es ok', async () => {
-      global.fetch = jest.fn().mockResolvedValue({
-        ok: false,
-      });
+    test('lanza PodcastFetchError si la respuesta HTTP no es ok', async () => {
+      global.fetch = jest.fn().mockResolvedValue({ ok: false });
 
-      const adapter = new ApiPodcastAdapter();
-
-      await expect(adapter.getTopPodcasts()).rejects.toThrow(PodcastFetchError);
+      await expect(new ApiPodcastAdapter().getTopPodcasts()).rejects.toThrow(PodcastFetchError);
     });
 
-    test('debe lanzar PodcastFetchError si ocurre un fallo de red', async () => {
+    test('lanza PodcastFetchError si el proxy no devuelve contents', async () => {
+      global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({}) });
+
+      await expect(new ApiPodcastAdapter().getTopPodcasts()).rejects.toThrow(PodcastFetchError);
+    });
+
+    test('lanza PodcastFetchError si ocurre un fallo de red', async () => {
       global.fetch = jest.fn().mockRejectedValue(new Error('Network error'));
 
-      const adapter = new ApiPodcastAdapter();
-
-      await expect(adapter.getTopPodcasts()).rejects.toThrow(PodcastFetchError);
+      await expect(new ApiPodcastAdapter().getTopPodcasts()).rejects.toThrow(PodcastFetchError);
     });
   });
 
   describe('getPodcastDetail', () => {
-    test('debe lanzar PodcastDetailError si la petición de detalle falla', async () => {
-      global.fetch = jest.fn().mockResolvedValue({
-        ok: false,
-      });
+    test('devuelve el podcast y sus episodios mapeados', async () => {
+      global.fetch = jest.fn().mockResolvedValue(
+        wrapInAllOrigins({
+          results: [
+            {
+              wrapperType: 'track',
+              collectionName: 'Song Exploder',
+              artistName: 'Song Exploder',
+              artworkUrl600: 'cover.jpg',
+            },
+            {
+              wrapperType: 'podcastEpisode',
+              trackId: 1,
+              trackName: 'Episode 1',
+              releaseDate: '2016-03-01T00:00:00Z',
+              trackTimeMillis: 840000,
+              description: 'Description',
+              episodeUrl: 'https://example.com/audio.mp3',
+            },
+          ],
+        }),
+      );
 
-      const adapter = new ApiPodcastAdapter();
+      const result = await new ApiPodcastAdapter().getPodcastDetail('123');
 
-      await expect(adapter.getPodcastDetail('123')).rejects.toThrow(PodcastDetailError);
+      expect(result.podcast.title).toBe('Song Exploder');
+      expect(result.episodes).toHaveLength(1);
+      expect(result.episodes[0]?.duration).toBe('14:00');
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining(
+          encodeURIComponent(
+            'https://itunes.apple.com/lookup?id=123&media=podcast&entity=podcastEpisode&limit=20',
+          ),
+        ),
+      );
+    });
+
+    test('lanza PodcastDetailError si la respuesta HTTP no es ok', async () => {
+      global.fetch = jest.fn().mockResolvedValue({ ok: false });
+
+      await expect(new ApiPodcastAdapter().getPodcastDetail('123')).rejects.toThrow(
+        PodcastDetailError,
+      );
+    });
+
+    test('lanza PodcastDetailError si el proxy no devuelve contents', async () => {
+      global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({}) });
+
+      await expect(new ApiPodcastAdapter().getPodcastDetail('123')).rejects.toThrow(
+        PodcastDetailError,
+      );
     });
   });
 });

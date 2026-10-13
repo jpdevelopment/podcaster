@@ -10,6 +10,7 @@
   "scripts": {
     "start": "webpack serve --config config/webpack.dev.js",
     "build": "webpack --config config/webpack.prod.js",
+    "preview": "serve -s dist",
     "lint": "eslint src --max-warnings 0",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
@@ -53,6 +54,7 @@
     "typescript-eslint": "^8.71.1",
     "webpack": "^5.111.1",
     "webpack-cli": "^7.2.3",
-    "webpack-dev-server": "^6.0.0"
+    "webpack-dev-server": "^6.0.0",
+    "webpack-merge": "^6.0.1"
   }
 }

@@ -9,14 +9,6 @@ module.exports = merge(common, {
     historyApiFallback: true,
     port: 3000,
     open: true,
-    proxy: [
-      {
-        context: ['/itunes'],
-        target: 'https://itunes.apple.com',
-        changeOrigin: true,
-        pathRewrite: { '^/itunes': '' },
-      },
-    ],
   },
   module: {
     rules: [
