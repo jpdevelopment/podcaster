@@ -64,5 +64,5 @@ export function mapApiToPodcastDetail(rawJson: ITunesEpisodesResponseDTO, podcas
     };
   });
 
-  return { podcast, episodes };
+  return { podcast, episodes, episodeCount: podcastInfo?.trackCount ?? episodes.length  };
 }

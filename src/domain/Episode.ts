@@ -12,4 +12,6 @@ export interface Episode {
 export interface PodcastDetail {
   podcast: Podcast;
   episodes: Episode[];
+  episodeCount: number;
+
 }

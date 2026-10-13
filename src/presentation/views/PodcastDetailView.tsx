@@ -17,7 +17,7 @@ export const PodcastDetailView: React.FC = () => {
     <div className="layout">
       <PodcastSidebar podcast={detail.podcast} />
       <main>
-        <h2>Episodes: {detail.episodes.length}</h2>
+        <h2>Episodes: {detail.episodeCount}</h2>
         <table>
           <thead>
             <tr>

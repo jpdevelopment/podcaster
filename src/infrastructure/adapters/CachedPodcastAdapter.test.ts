@@ -7,6 +7,7 @@ const DAY_IN_MS = 24 * 60 * 60 * 1000;
 const buildDetail = (podcastId: string): PodcastDetail => ({
   podcast: { id: podcastId, title: `Podcast ${podcastId}`, author: 'Autor', image: '', summary: '' },
   episodes: [],
+  episodeCount: 0
 });
 
 describe('CachedPodcastAdapter', () => {

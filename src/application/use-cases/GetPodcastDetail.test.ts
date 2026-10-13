@@ -21,6 +21,7 @@ const buildDetail = (podcastId: string): PodcastDetail => ({
       duration: '1800',
     },
   ],
+  episodeCount: 1
 });
 
 const topPodcast: Podcast = {

@@ -29,6 +29,7 @@ describe('PodcastDetailView Component', () => {
             duration: '1800',
           },
         ],
+        episodeCount: 42
       }),
     });
 
@@ -47,6 +48,7 @@ describe('PodcastDetailView Component', () => {
       expect(screen.getByText(/Hrishikesh Hirway/i)).toBeInTheDocument();
       expect(screen.getByText('An inside look at how music is made.')).toBeInTheDocument();
       expect(screen.getByText('Fleetwood Mac - Dreams')).toBeInTheDocument();
+      expect(screen.getByText('Episodes: 42')).toBeInTheDocument();
     });
   });
 });

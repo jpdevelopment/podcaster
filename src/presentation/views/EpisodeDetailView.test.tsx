@@ -24,6 +24,7 @@ const detail: PodcastDetail = {
       duration: '14:00',
     },
   ],
+  episodeCount: 1
 };
 
 const renderEpisodeView = (episodeId: string) =>

@@ -6,6 +6,7 @@ import { usePodcastDetail } from './usePodcastDetail';
 const buildDetail = (id: string): PodcastDetail => ({
   podcast: { id, title: `Podcast ${id}`, author: 'Autor', image: '', summary: '' },
   episodes: [],
+  episodeCount: 0,
 });
 
 const mockContext = (fetchPodcastDetail: jest.Mock) =>

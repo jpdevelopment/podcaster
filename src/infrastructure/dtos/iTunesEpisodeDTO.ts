@@ -6,6 +6,7 @@ export interface ITunesEpisodesDTO {
   collectionName?: string;
   trackName?: string;
   trackId?: number;
+  trackCount?: number;
   artworkUrl600?: string;
   artworkUrl100?: string;
   releaseDate?: string;
