@@ -13,7 +13,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "paths": { "@/*": ["./src/*"] }
+    "types": ["jest", "node", "@testing-library/jest-dom"]
   },
   "include": ["src"]
 }
