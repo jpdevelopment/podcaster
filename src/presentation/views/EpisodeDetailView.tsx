@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { usePodcastContext } from '../../context/PodcastContext';
 import { PodcastDetail } from '../../domain/Episode';
 import { PodcastSidebar } from '../components/PodcastSidebar';
+import { SanitizedHtml } from '../components/SanitizedHtml';
 
 /**
  * Componente con la vista detalle de un episodio con un reproductor de audio.
@@ -26,7 +27,7 @@ export const EpisodeDetailView: React.FC = () => {
       <PodcastSidebar podcast={detail.podcast} />
       <main>
         <h2>{episode.title}</h2>
-        <div dangerouslySetInnerHTML={{ __html: episode.description }} />
+        <SanitizedHtml html={episode.description} />
         <audio controls src={episode.audioUrl} />
       </main>
     </div>
