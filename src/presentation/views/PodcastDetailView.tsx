@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { usePodcastContext } from '../../context/PodcastContext';
-import { PodcastDetail } from '../../domain/Episode';
+import { usePodcastDetail } from '../hooks/usePodcastDetail';
 import { PodcastSidebar } from '../components/PodcastSidebar';
 import './PodcastDetailView.css';
 
@@ -10,12 +9,7 @@ import './PodcastDetailView.css';
  */
 export const PodcastDetailView: React.FC = () => {
   const { podcastId } = useParams<{ podcastId: string }>();
-  const { fetchPodcastDetail } = usePodcastContext();
-  const [detail, setDetail] = useState<PodcastDetail | null>(null);
-
-  useEffect(() => {
-    if (podcastId) fetchPodcastDetail(podcastId).then(setDetail);
-  }, [podcastId, fetchPodcastDetail]);
+  const detail = usePodcastDetail(podcastId);
 
   if (!detail) return null;
 

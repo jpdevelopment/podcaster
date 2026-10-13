@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useParams } from 'react-router-dom';
-import { usePodcastContext } from '../../context/PodcastContext';
-import { PodcastDetail } from '../../domain/Episode';
+import { usePodcastDetail } from '../hooks/usePodcastDetail';
 import { PodcastSidebar } from '../components/PodcastSidebar';
 import { SanitizedHtml } from '../components/SanitizedHtml';
 
@@ -10,16 +9,11 @@ import { SanitizedHtml } from '../components/SanitizedHtml';
  */
 export const EpisodeDetailView: React.FC = () => {
   const { podcastId, episodeId } = useParams<{ podcastId: string; episodeId: string }>();
-  const { fetchPodcastDetail } = usePodcastContext();
-  const [detail, setDetail] = useState<PodcastDetail | null>(null);
-
-  useEffect(() => {
-    if (podcastId) fetchPodcastDetail(podcastId).then(setDetail);
-  }, [podcastId, fetchPodcastDetail]);
+  const detail = usePodcastDetail(podcastId);
 
   if (!detail) return null;
   const episode = detail.episodes.find((e) => e.id === episodeId);
-  
+
   if (!episode) return <p>Episodio no encontrado</p>;
 
   return (
